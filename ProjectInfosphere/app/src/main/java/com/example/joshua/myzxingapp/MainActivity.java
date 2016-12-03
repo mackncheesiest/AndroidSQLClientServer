@@ -61,10 +61,12 @@ public class MainActivity extends AppCompatActivity {
                 }
                 //Otherwise, say things were successful and change to the results screen
                 else {
-                    Toast.makeText(getApplicationContext(), "Barcode Data Found: " + result.get(0), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Barcode Data Found :)", Toast.LENGTH_LONG).show();
 
-                    //TODO: Find out how to package information into the Intent like what machine to highlight, etc.
                     Intent showMachineIntent = new Intent(this, ViewMachine.class);
+                    //Thanks http://stackoverflow.com/questions/2091465/how-do-i-pass-data-between-activities-on-android
+                    String machineLoc = "Line: \n" + result.get(0) + "\n\nModule: \n" + result.get(1) + "\n\nReel: \n" + result.get(2);
+                    showMachineIntent.putExtra("MachineLocation", machineLoc);
                     startActivity(showMachineIntent);
                 }
             } else if (resultCode == RESULT_CANCELED) {

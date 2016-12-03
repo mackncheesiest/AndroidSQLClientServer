@@ -63,6 +63,8 @@ public class JDBC_Server {
             // Accept incoming connections from the ServerSocket.
             Socket s = sock.accept();
 
+            //Print out the IP of our new client
+            System.out.println("Accepted a new connection from " + s.getInetAddress());
             //Note: Make sure that if the order is "InputStream OutputStream" on the server, they're initialized as "OutputStream InputStream" on the client
             //These are blocking operations that require the other side to be essentially requesting the opposite pair for each one to proceed
             ObjectInputStream is = new ObjectInputStream(s.getInputStream());
@@ -77,12 +79,8 @@ public class JDBC_Server {
 
             // Start a new ClientHandler thread for this client.
             ClientHandler c = new ClientHandler(is, os, dbconn);
-            System.out.println("Created ClientHandler!");
             c.start();
             System.out.println("Started ClientHandler!");
-
-            //Print out the IP of our new client
-            System.out.println("Accepted a new connection from " + s.getInetAddress());
         }
     }
 
@@ -116,6 +114,7 @@ class ClientHandler extends Thread {
                 e.printStackTrace();
             } catch (IOException e) {
                 this.cleanup();
+                return;
             }
             //If the user sent nothing or something didn't read properly (but wasn't caught above), just quit this thread
             if (sql == null) {
@@ -130,19 +129,24 @@ class ClientHandler extends Thread {
                 System.out.println("Recieved string " + sql);
                 //Execute the actual SQL query -- a select query that assumes a table BCTABLE exists and it has elements
                 //With fields (id, name) each VARCHAR2(256) and id as the PRIMARY KEY
-                ResultSet rs = stmt.executeQuery("SELECT id, name FROM BCTABLE WHERE id = " + sql + "\n");
+                ResultSet rs = stmt.executeQuery("SELECT LINE, MODULE, SLOT FROM MOCKCONTINENTAL1 WHERE BARCODE = " + sql + "\n");
 
                 //Note that a ResultSet does not appear to actually contain the data. Rather, it contains the information needed to find it in the database
                 //Thus, we need to first extract the data from the database before sending it back to the client
                 ArrayList<String> temp = new ArrayList<String>();
 
                 //In our use case, I'm pretty sure there will basically only be one match for each SELECT query, but just in case, send them all back
+                //Iterate through all the matching rows (i.e. only one)
                 while (rs.next()) {
-                    temp.add(rs.getString("name"));
+                    //Extract the pieces we need from it
+                    temp.add(rs.getString("LINE"));
+                    temp.add(rs.getString("MODULE"));
+                    temp.add(rs.getString("SLOT"));
                 }
 
                 //Physically send the results back to the client
                 output.writeObject(temp);
+                System.out.println("Replied back with an ArrayList of " + temp.size() + " elements");
 
             } catch (SQLException | IOException e) {
                 e.printStackTrace();
@@ -159,6 +163,7 @@ class ClientHandler extends Thread {
             this.input.close();
             this.output.close();
             //DONT close dbconn as it is a shared connection among all the clients
+            System.out.println("Closed connection!");
         } catch (IOException e) {
             e.printStackTrace();
         }
