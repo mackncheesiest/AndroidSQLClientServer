@@ -24,6 +24,7 @@ public class JDBC_Server {
 
     public static void main(String[] args) throws IOException {
 
+        //TODO: Allow the user to pass in these parameters through args
         //Initialize the database connection
         //The basic idea is along the lines of
         //                    use jdbc thin driver to connect to user hr @ localhost through port 1521, and it's an eXpress Edition of Oracle Database

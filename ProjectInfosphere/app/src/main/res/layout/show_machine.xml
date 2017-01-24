@@ -2,10 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
               xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
 
     <TextView
-            android:text="TextView"
             android:layout_width="30dp"
             android:layout_height="match_parent"
             android:layout_weight="1.00"
@@ -16,19 +16,17 @@
             android:textStyle="normal|bold"
             android:textColor="@android:color/black"
             android:textAlignment="center"
-    />
+            android:text="\nLine: \n1\n\nModule: \n9\n\nReel: \n7\n"/>
     <ImageView
             android:layout_width="301dp"
             android:layout_height="wrap_content"
-            android:src="@drawable/factory_layout_zoom_sel"
+            android:src="@drawable/barcode_logo"
             android:id="@+id/imageView"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:layout_marginRight="10dp"
             android:layout_weight="1.65"
-            android:adjustViewBounds="false"
-            android:cropToPadding="false"
-            android:scaleType="fitXY"
-    />
+            android:scaleType="matrix"
+            android:background="@android:color/black"/>
 
 </LinearLayout>

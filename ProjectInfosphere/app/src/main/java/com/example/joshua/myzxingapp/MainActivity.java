@@ -1,5 +1,6 @@
 package com.example.joshua.myzxingapp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,19 +28,29 @@ public class MainActivity extends AppCompatActivity {
         //Get the Button and add a listener to it
         Button myButton = (Button) findViewById(R.id.button);
 
+
         myButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //When the Button is clicked, create an intent to scan a barcode and launch the intent
                 Intent intent = new Intent("com.google.zxing.client.android.SCAN");
                 startActivityForResult(intent, 0);
+
+                //Go straight to viewing the results (i.e. skip barcode reading)
+                /*
+                Intent showMachineIntent = new Intent(getApplicationContext(), ViewMachine.class);
+                String machineLoc = "Line: \n1\n\nModule: \n2\n\nReel: \n3";
+                showMachineIntent.putExtra("MachineLocation", machineLoc);
+                startActivity(showMachineIntent);
+                */
             }
         });
+
     }
 
     //Called when the "startActivityForResult(intent, 0)" finishes
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == 0) {
             // Handle successful scan
             if (resultCode == RESULT_OK) {
