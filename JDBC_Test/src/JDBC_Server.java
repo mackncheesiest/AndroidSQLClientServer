@@ -130,8 +130,45 @@ class ClientHandler extends Thread {
                 System.out.println("Recieved string " + sql);
                 //Execute the actual SQL query -- a select query that assumes a table BCTABLE exists and it has elements
                 //With fields (id, name) each VARCHAR2(256) and id as the PRIMARY KEY
-                ResultSet rs = stmt.executeQuery("SELECT LINE, MODULE, SLOT FROM MOCKCONTINENTAL1 WHERE BARCODE = " + sql + "\n");
+                //ResultSet rs = stmt.executeQuery("SELECT LINE, MODULE, SLOT FROM MOCKCONTINENTAL1 WHERE BARCODE = " + sql + "\n");
+                System.out.println("SQL Statement: " + "SELECT ID, LENUM_IST FROM IMPORTED_CONT_SAP_RPT_REEL WHERE MATNR = " + sql + "\n");
+                ResultSet rs = stmt.executeQuery("SELECT ID, LENUM_IST FROM IMPORTED_CONT_SAP_RPT_REEL WHERE MATNR = '" + sql + "'\n");
 
+                int minOrderNumber = Integer.MAX_VALUE;
+                String ReelID = "";
+                int tempOrderNum;
+                while (rs.next()) {
+                    tempOrderNum = rs.getInt("ID");
+                    if (tempOrderNum < minOrderNumber) {
+                        ReelID = rs.getString("LENUM_IST");
+                    }
+                }
+
+                //Now select the line, module, and slot pieces from the second database where the ReelID matches
+                rs = stmt.executeQuery("SELECT Buffer, Slot from IMPORTED_CONTINENTAL_PICKS2 WHERE SUD = " + ReelID + "\n");
+
+                //There should only be one match for this, but prepare a boilerplate response for if the result set is empty
+                ArrayList<String> headsetResults = new ArrayList<String>();
+
+                String Line = "No data found for this barcode in PICKS2 database";
+                String Module = "";
+                String Slot = "";
+
+                while (rs.next()) {
+                    String buffer = rs.getString("Buffer");
+                    //i.e. NG24NX1M09 has Line = 24, Module = 09
+                    Line = buffer.substring(2, 4);
+                    Module = buffer.substring(buffer.length() - 2);
+
+                    String moduleSlot = rs.getString("Slot");
+                    Slot = moduleSlot.substring(moduleSlot.length()-2);
+                }
+
+                headsetResults.add(Line);
+                headsetResults.add(Module);
+                headsetResults.add(Slot);
+
+                /*
                 //Note that a ResultSet does not appear to actually contain the data. Rather, it contains the information needed to find it in the database
                 //Thus, we need to first extract the data from the database before sending it back to the client
                 ArrayList<String> temp = new ArrayList<String>();
@@ -144,10 +181,11 @@ class ClientHandler extends Thread {
                     temp.add(rs.getString("MODULE"));
                     temp.add(rs.getString("SLOT"));
                 }
+                */
 
                 //Physically send the results back to the client
-                output.writeObject(temp);
-                System.out.println("Replied back with an ArrayList of " + temp.size() + " elements");
+                output.writeObject(headsetResults);
+                System.out.println("Replied back with an ArrayList of " + headsetResults.size() + " elements");
 
             } catch (SQLException | IOException e) {
                 e.printStackTrace();
