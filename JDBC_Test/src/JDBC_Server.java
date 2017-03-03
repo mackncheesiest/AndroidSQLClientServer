@@ -131,21 +131,26 @@ class ClientHandler extends Thread {
                 //Execute the actual SQL query -- a select query that assumes a table BCTABLE exists and it has elements
                 //With fields (id, name) each VARCHAR2(256) and id as the PRIMARY KEY
                 //ResultSet rs = stmt.executeQuery("SELECT LINE, MODULE, SLOT FROM MOCKCONTINENTAL1 WHERE BARCODE = " + sql + "\n");
-                System.out.println("SQL Statement: " + "SELECT ID, LENUM_IST FROM IMPORTED_CONT_SAP_RPT_REEL WHERE MATNR = " + sql + "\n");
-                ResultSet rs = stmt.executeQuery("SELECT ID, LENUM_IST FROM IMPORTED_CONT_SAP_RPT_REEL WHERE MATNR = '" + sql + "'\n");
+                System.out.println("SQL Statement: " + "SELECT ID, LENUM_IST FROM IMPORTED_CONTINENTAL_SAP WHERE MATNR = " + sql + "\n");
+                ResultSet rs = stmt.executeQuery("SELECT ID, LENUM_IST FROM IMPORTED_CONTINENTAL_SAP WHERE MATNR = '" + sql + "'\n");
 
                 int minOrderNumber = Integer.MAX_VALUE;
                 String ReelID = "";
                 int tempOrderNum;
                 while (rs.next()) {
+                    System.out.println("There was a match in the SAP database");
+                    System.out.println("ID: " + rs.getString("ID") + ", REEL_ID: " + rs.getString("LENUM_IST"));
                     tempOrderNum = rs.getInt("ID");
                     if (tempOrderNum < minOrderNumber) {
+                        minOrderNumber = tempOrderNum;
                         ReelID = rs.getString("LENUM_IST");
                     }
                 }
 
+                System.out.println("I chose ID: " + minOrderNumber + ", REEL_ID: " + ReelID);
+
                 //Now select the line, module, and slot pieces from the second database where the ReelID matches
-                rs = stmt.executeQuery("SELECT Buffer, Slot from IMPORTED_CONTINENTAL_PICKS2 WHERE SUD = " + ReelID + "\n");
+                rs = stmt.executeQuery("SELECT Buffer, Slot from IMPORTED_CONTINENTAL_PICKS2 WHERE SUD = '" + ReelID + "'\n");
 
                 //There should only be one match for this, but prepare a boilerplate response for if the result set is empty
                 ArrayList<String> headsetResults = new ArrayList<String>();
