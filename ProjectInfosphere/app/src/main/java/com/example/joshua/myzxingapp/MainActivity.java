@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Called when the "startActivityForResult(intent, 0)" finishes
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    protected void onActivityResult(int requestCode, int resultCode, int language Intent intent) {
         if (requestCode == 0) {
             // Handle successful scan
             if (resultCode == RESULT_OK) {
@@ -76,9 +76,27 @@ public class MainActivity extends AppCompatActivity {
 
                     Intent showMachineIntent = new Intent(this, ViewMachine.class);
                     //Thanks http://stackoverflow.com/questions/2091465/how-do-i-pass-data-between-activities-on-android
-                    String machineLoc = "Line: \n" + result.get(0) + "\n\nModule: \n" + result.get(1) + "\n\nReel: \n" + result.get(2);
-                    showMachineIntent.putExtra("MachineLocation", machineLoc);
-                    startActivity(showMachineIntent);
+
+					//English selected
+					if(language == 1){
+						String machineLoc = "Line: \n" + result.get(0) + "\n\nModule: \n" + result.get(1) + "\n\nReel: \n" + result.get(2);
+						showMachineIntent.putExtra("MachineLocation", machineLoc);
+						startActivity(showMachineIntent);
+					}
+
+					//Spanish Selected
+					else if(language == 2){
+						String machineLoc = "Fila: \n" + result.get(0) + "\n\nModulo: \n" + result.get(1) + "\n\nCarrete: \n" + result.get(2);
+						showMachineIntent.putExtra("MachineLocation", machineLoc);
+						startActivity(showMachineIntent);
+					}
+
+					//German Selected
+					else if(language == 3){
+						String machineLoc = "Leitung: \n" + result.get(0) + "\n\nModul: \n" + result.get(1) + "\n\nHaspel: \n" + result.get(2);
+						showMachineIntent.putExtra("MachineLocation", machineLoc);
+						startActivity(showMachineIntent);
+					}
                 }
             } else if (resultCode == RESULT_CANCELED) {
                 //The user cancelled without scanning a barcode
