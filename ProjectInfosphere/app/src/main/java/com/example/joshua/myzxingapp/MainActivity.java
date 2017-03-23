@@ -16,6 +16,12 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import static com.example.joshua.myzxingapp.language.*;
+
+enum language {english, spanish, german};
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
     //English = 1
     //German = 2
     //Spanish = 3
-    //English is set as default. Therefor language = 1
-    int language = 1;
+    //English is set as default. Therefore language = 1
+    language chosenLanguage = english;
 
     //Huge thanks to Stack Overflow! (http://stackoverflow.com/questions/8009309/how-to-create-barcode-scanner-android)
     @Override
@@ -40,57 +46,42 @@ public class MainActivity extends AppCompatActivity {
         englishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                language = 1;
-                //When the Button is clicked, create an intent to scan a barcode and launch the intent
-                Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-                startActivityForResult(intent, 0);
-
-                //Go straight to viewing the results (i.e. skip barcode reading)
-                /*
-                Intent showMachineIntent = new Intent(getApplicationContext(), ViewMachine.class);
-                String machineLoc = "Line: \n1\n\nModule: \n2\n\nReel: \n3";
-                showMachineIntent.putExtra("MachineLocation", machineLoc);
-                startActivity(showMachineIntent);
-                */
+                chosenLanguage = english;
+                scanBarcode();
             }
         });
 
         germanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                language = 2;
-                //When the Button is clicked, create an intent to scan a barcode and launch the intent
-                Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-                startActivityForResult(intent, 0);
-
-                //Go straight to viewing the results (i.e. skip barcode reading)
-                /*
-                Intent showMachineIntent = new Intent(getApplicationContext(), ViewMachine.class);
-                String machineLoc = "Line: \n1\n\nModule: \n2\n\nReel: \n3";
-                showMachineIntent.putExtra("MachineLocation", machineLoc);
-                startActivity(showMachineIntent);
-                */
+                chosenLanguage = german;
+                scanBarcode();
             }
         });
 
         spanishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                language = 3;
-                //When the Button is clicked, create an intent to scan a barcode and launch the intent
-                Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-                startActivityForResult(intent, 0);
-
-                //Go straight to viewing the results (i.e. skip barcode reading)
-                /*
-                Intent showMachineIntent = new Intent(getApplicationContext(), ViewMachine.class);
-                String machineLoc = "Line: \n1\n\nModule: \n2\n\nReel: \n3";
-                showMachineIntent.putExtra("MachineLocation", machineLoc);
-                startActivity(showMachineIntent);
-                */
+                chosenLanguage = spanish;
+                scanBarcode();
             }
         });
 
+    }
+
+    private void scanBarcode() {
+        //When the Button is clicked, create an intent to scan a barcode and launch the intent
+        Intent intent = new Intent("com.google.zxing.client.android.SCAN");
+        startActivityForResult(intent, 0);
+
+        //Go straight to viewing the results (i.e. skip barcode reading) -- used for testing when barcode database inaccessible
+        /*
+        Intent showMachineIntent = new Intent(getApplicationContext(), ViewMachine.class);
+        String machineLoc = "Line:\n20\n\nModule:\n2\n\nReel:\n3";
+        showMachineIntent.putExtra("MachineLocation", machineLoc);
+        showMachineIntent.putExtra("LineNo", "20");
+        startActivity(showMachineIntent);
+        */
     }
 
     //Called when the "startActivityForResult(intent, 0)" finishes
@@ -100,14 +91,19 @@ public class MainActivity extends AppCompatActivity {
             // Handle successful scan
             if (resultCode == RESULT_OK) {
                 String contents = intent.getStringExtra("SCAN_RESULT");
-                String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
 
                 //BOOP-BEEP I'M QUERYING A DATABASE
                 ArrayList<String> result = null;
                 try {
-                    result = new RetrieveQueryTask().execute(contents).get();
+                    result = new RetrieveQueryTask().execute(contents).get(5000, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException | ExecutionException e) {
+                    result = null;
                     e.printStackTrace();
+                }
+                catch (TimeoutException t) {
+                    result = null;
+                    Toast.makeText(getApplicationContext(), "Network timeout", Toast.LENGTH_SHORT).show();
+                    return;
                 }
 
                 //If we didn't get anything back from the database...
@@ -122,29 +118,22 @@ public class MainActivity extends AppCompatActivity {
                     Intent showMachineIntent = new Intent(this, ViewMachine.class);
                     //Thanks http://stackoverflow.com/questions/2091465/how-do-i-pass-data-between-activities-on-android
 
+                    String machineLoc;
                     //English selected
-                    if(language == 1){
-                        String machineLoc = "Line: \n" + result.get(0) + "\n\nModule: \n" + result.get(1) + "\n\nReel: \n" + result.get(2);
-                        showMachineIntent.putExtra("MachineLocation", machineLoc);
-                        showMachineIntent.putExtra("LineNo", result.get(0));
-                        startActivity(showMachineIntent);
+                    if(chosenLanguage == english){
+                        machineLoc = "Line: \n" + result.get(0) + "\n\nModule: \n" + result.get(1) + "\n\nReel: \n" + result.get(2);
                     }
-
                     //German Selected
-                    else if(language == 2){
-                        String machineLoc = "Leitung: \n" + result.get(0) + "\n\nModul: \n" + result.get(1) + "\n\nHaspel: \n" + result.get(2);
-                        showMachineIntent.putExtra("MachineLocation", machineLoc);
-                        showMachineIntent.putExtra("LineNo", result.get(0));
-                        startActivity(showMachineIntent);
+                    else if(chosenLanguage == german){
+                        machineLoc = "Leitung: \n" + result.get(0) + "\n\nModul: \n" + result.get(1) + "\n\nHaspel: \n" + result.get(2);
                     }
-
                     //Spanish Selected
-                    else if(language == 3){
-                        String machineLoc = "Fila: \n" + result.get(0) + "\n\nModulo: \n" + result.get(1) + "\n\nCarrete: \n" + result.get(2);
-                        showMachineIntent.putExtra("MachineLocation", machineLoc);
-                        showMachineIntent.putExtra("LineNo", result.get(0));
-                        startActivity(showMachineIntent);
+                    else {
+                        machineLoc = "Fila: \n" + result.get(0) + "\n\nModulo: \n" + result.get(1) + "\n\nCarrete: \n" + result.get(2);
                     }
+                    showMachineIntent.putExtra("MachineLocation", machineLoc);
+                    showMachineIntent.putExtra("LineNo", result.get(0));
+                    startActivity(showMachineIntent);
                 }
             } else if (resultCode == RESULT_CANCELED) {
                 //The user cancelled without scanning a barcode
