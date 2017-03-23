@@ -19,6 +19,13 @@ import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
+    //this int variable will determine what language to display the information in
+    //English = 1
+    //German = 2
+    //Spanish = 3
+    //English is set as default. Therefor language = 1
+    int language = 1;
+
     //Huge thanks to Stack Overflow! (http://stackoverflow.com/questions/8009309/how-to-create-barcode-scanner-android)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +39,23 @@ public class MainActivity extends AppCompatActivity {
         myButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                /*
+                //User chooses English
+                if(myButton.id == button){
+                    language = 1;
+                }
+
+                //User chooses German
+                else if(myButton.id == button2){
+                    language = 2;
+                }
+                //user chooses Spanish
+                else if(myButton.id == button3){
+                    language = 3;
+                }
+                 */
+
                 //When the Button is clicked, create an intent to scan a barcode and launch the intent
                 Intent intent = new Intent("com.google.zxing.client.android.SCAN");
                 startActivityForResult(intent, 0);
@@ -76,9 +100,27 @@ public class MainActivity extends AppCompatActivity {
 
                     Intent showMachineIntent = new Intent(this, ViewMachine.class);
                     //Thanks http://stackoverflow.com/questions/2091465/how-do-i-pass-data-between-activities-on-android
-                    String machineLoc = "Line: \n" + result.get(0) + "\n\nModule: \n" + result.get(1) + "\n\nReel: \n" + result.get(2);
-                    showMachineIntent.putExtra("MachineLocation", machineLoc);
-                    startActivity(showMachineIntent);
+
+                    //English selected
+                    if(language == 1){
+                        String machineLoc = "Line: \n" + result.get(0) + "\n\nModule: \n" + result.get(1) + "\n\nReel: \n" + result.get(2);
+                        showMachineIntent.putExtra("MachineLocation", machineLoc);
+                        startActivity(showMachineIntent);
+                    }
+
+                    //Spanish Selected
+                    else if(language == 2){
+                        String machineLoc = "Leitung: \n" + result.get(0) + "\n\nModul: \n" + result.get(1) + "\n\nHaspel: \n" + result.get(2);
+                        showMachineIntent.putExtra("MachineLocation", machineLoc);
+                        startActivity(showMachineIntent);
+                    }
+
+                    //German Selected
+                    else if(language == 3){
+                        String machineLoc = "Fila: \n" + result.get(0) + "\n\nModulo: \n" + result.get(1) + "\n\nCarrete: \n" + result.get(2);
+                        showMachineIntent.putExtra("MachineLocation", machineLoc);
+                        startActivity(showMachineIntent);
+                    }
                 }
             } else if (resultCode == RESULT_CANCELED) {
                 //The user cancelled without scanning a barcode
