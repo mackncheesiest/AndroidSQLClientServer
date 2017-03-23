@@ -33,29 +33,50 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //Get the Button and add a listener to it
-        Button myButton = (Button) findViewById(R.id.button);
+        Button englishButton = (Button) findViewById(R.id.button);
+        Button germanButton = (Button) findViewById(R.id.button2);
+        Button spanishButton = (Button) findViewById(R.id.button3);
 
-
-        myButton.setOnClickListener(new View.OnClickListener() {
+        englishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                language = 1;
+                //When the Button is clicked, create an intent to scan a barcode and launch the intent
+                Intent intent = new Intent("com.google.zxing.client.android.SCAN");
+                startActivityForResult(intent, 0);
 
+                //Go straight to viewing the results (i.e. skip barcode reading)
                 /*
-                //User chooses English
-                if(myButton.id == button){
-                    language = 1;
-                }
+                Intent showMachineIntent = new Intent(getApplicationContext(), ViewMachine.class);
+                String machineLoc = "Line: \n1\n\nModule: \n2\n\nReel: \n3";
+                showMachineIntent.putExtra("MachineLocation", machineLoc);
+                startActivity(showMachineIntent);
+                */
+            }
+        });
 
-                //User chooses German
-                else if(myButton.id == button2){
-                    language = 2;
-                }
-                //user chooses Spanish
-                else if(myButton.id == button3){
-                    language = 3;
-                }
-                 */
+        germanButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                language = 2;
+                //When the Button is clicked, create an intent to scan a barcode and launch the intent
+                Intent intent = new Intent("com.google.zxing.client.android.SCAN");
+                startActivityForResult(intent, 0);
 
+                //Go straight to viewing the results (i.e. skip barcode reading)
+                /*
+                Intent showMachineIntent = new Intent(getApplicationContext(), ViewMachine.class);
+                String machineLoc = "Line: \n1\n\nModule: \n2\n\nReel: \n3";
+                showMachineIntent.putExtra("MachineLocation", machineLoc);
+                startActivity(showMachineIntent);
+                */
+            }
+        });
+
+        spanishButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                language = 3;
                 //When the Button is clicked, create an intent to scan a barcode and launch the intent
                 Intent intent = new Intent("com.google.zxing.client.android.SCAN");
                 startActivityForResult(intent, 0);
@@ -74,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Called when the "startActivityForResult(intent, 0)" finishes
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, int language Intent intent) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == 0) {
             // Handle successful scan
             if (resultCode == RESULT_OK) {
@@ -101,49 +122,29 @@ public class MainActivity extends AppCompatActivity {
                     Intent showMachineIntent = new Intent(this, ViewMachine.class);
                     //Thanks http://stackoverflow.com/questions/2091465/how-do-i-pass-data-between-activities-on-android
 
-<<<<<<< HEAD
                     //English selected
                     if(language == 1){
                         String machineLoc = "Line: \n" + result.get(0) + "\n\nModule: \n" + result.get(1) + "\n\nReel: \n" + result.get(2);
                         showMachineIntent.putExtra("MachineLocation", machineLoc);
-                        startActivity(showMachineIntent);
-                    }
-
-                    //Spanish Selected
-                    else if(language == 2){
-                        String machineLoc = "Leitung: \n" + result.get(0) + "\n\nModul: \n" + result.get(1) + "\n\nHaspel: \n" + result.get(2);
-                        showMachineIntent.putExtra("MachineLocation", machineLoc);
+                        showMachineIntent.putExtra("LineNo", result.get(0));
                         startActivity(showMachineIntent);
                     }
 
                     //German Selected
+                    else if(language == 2){
+                        String machineLoc = "Leitung: \n" + result.get(0) + "\n\nModul: \n" + result.get(1) + "\n\nHaspel: \n" + result.get(2);
+                        showMachineIntent.putExtra("MachineLocation", machineLoc);
+                        showMachineIntent.putExtra("LineNo", result.get(0));
+                        startActivity(showMachineIntent);
+                    }
+
+                    //Spanish Selected
                     else if(language == 3){
                         String machineLoc = "Fila: \n" + result.get(0) + "\n\nModulo: \n" + result.get(1) + "\n\nCarrete: \n" + result.get(2);
                         showMachineIntent.putExtra("MachineLocation", machineLoc);
+                        showMachineIntent.putExtra("LineNo", result.get(0));
                         startActivity(showMachineIntent);
                     }
-=======
-					//English selected
-					if(language == 1){
-						String machineLoc = "Line: \n" + result.get(0) + "\n\nModule: \n" + result.get(1) + "\n\nReel: \n" + result.get(2);
-						showMachineIntent.putExtra("MachineLocation", machineLoc);
-						startActivity(showMachineIntent);
-					}
-
-					//Spanish Selected
-					else if(language == 2){
-						String machineLoc = "Fila: \n" + result.get(0) + "\n\nModulo: \n" + result.get(1) + "\n\nCarrete: \n" + result.get(2);
-						showMachineIntent.putExtra("MachineLocation", machineLoc);
-						startActivity(showMachineIntent);
-					}
-
-					//German Selected
-					else if(language == 3){
-						String machineLoc = "Leitung: \n" + result.get(0) + "\n\nModul: \n" + result.get(1) + "\n\nHaspel: \n" + result.get(2);
-						showMachineIntent.putExtra("MachineLocation", machineLoc);
-						startActivity(showMachineIntent);
-					}
->>>>>>> origin/master
                 }
             } else if (resultCode == RESULT_CANCELED) {
                 //The user cancelled without scanning a barcode

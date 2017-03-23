@@ -20,6 +20,7 @@ public class ViewMachine extends AppCompatActivity {
 
         TextView tv = (TextView) findViewById(R.id.LineNoTextView);
         ImageView imView = (ImageView) findViewById(R.id.imageView);
+        imView.setImageResource("R.drawable.floorPlanImages." + getIntent().getStringExtra("LineNo"));
 
         tv.setText(getIntent().getStringExtra("MachineLocation"));
 
