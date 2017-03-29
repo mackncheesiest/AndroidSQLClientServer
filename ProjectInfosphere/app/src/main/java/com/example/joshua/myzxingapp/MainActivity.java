@@ -190,6 +190,14 @@ class RetrieveQueryTask extends AsyncTask<String, Void, ArrayList<String>> {
             result = (ArrayList<String>) ois.readObject();
             Log.d("CONNECTION", "Received response from server!");
 
+            //Check that none of the entries of the response are empty
+            for (String str : result) {
+                if (str.compareTo("") == 0) {
+                    result = null;
+                    break;
+                }
+            }
+
             oos.close();
             ois.close();
             sock.close();

@@ -11,11 +11,11 @@
     tools:context="com.example.joshua.myzxingapp.MainActivity">
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button"
-        android:text="English"
-        android:layout_centerVertical="true" android:layout_centerHorizontal="true"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/button"
+            android:text="English"
+            android:layout_centerVertical="true" android:layout_centerHorizontal="true"/>
     <Button
             android:text="Deutsche"
             android:layout_width="wrap_content"
@@ -23,7 +23,7 @@
             android:layout_toRightOf="@+id/button" android:layout_toEndOf="@+id/button" android:layout_marginLeft="19dp"
             android:layout_marginStart="19dp" android:id="@+id/button2"/>
     <Button
-            android:text="Espanol"
+            android:text="Español"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/button" android:layout_toStartOf="@+id/button"
