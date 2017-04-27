@@ -17,6 +17,11 @@
             android:textColor="@android:color/black"
             android:textAlignment="center"
             android:text="\nLine: \n1\n\nModule: \n9\n\nReel: \n7\n"/>
+    <Button
+            android:text="Button"
+            android:layout_width="0dp"
+            android:id="@+id/button5"
+            android:visibility="visible" android:layout_height="0dp"/>
     <ImageView
             android:layout_width="301dp"
             android:layout_height="wrap_content"

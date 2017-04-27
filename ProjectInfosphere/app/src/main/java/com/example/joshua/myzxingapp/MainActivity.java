@@ -1,6 +1,5 @@
 package com.example.joshua.myzxingapp;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -38,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         //Load the default view
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         //Get the Button and add a listener to it
         Button englishButton = (Button) findViewById(R.id.button);
         Button germanButton = (Button) findViewById(R.id.button2);
@@ -66,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
                 scanBarcode();
             }
         });
-
     }
 
     private void scanBarcode() {
@@ -87,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
     //Called when the "startActivityForResult(intent, 0)" finishes
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+
         if (requestCode == 0) {
             // Handle successful scan
             if (resultCode == RESULT_OK) {
@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
                 //BOOP-BEEP I'M QUERYING A DATABASE
                 ArrayList<String> result = null;
                 try {
-                    result = new RetrieveQueryTask().execute(contents).get(5000, TimeUnit.MILLISECONDS);
+                    result = new RetrieveQueryTask().execute(contents).get(10000, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException | ExecutionException e) {
                     result = null;
                     e.printStackTrace();
@@ -109,11 +109,11 @@ public class MainActivity extends AppCompatActivity {
                 //If we didn't get anything back from the database...
                 if (result == null || result.size() == 0) {
                     //...Tell the user
-                    Toast.makeText(getApplicationContext(), "Barcode Data Not Found :(", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Barcode Data Not Found", Toast.LENGTH_SHORT).show();
                 }
                 //Otherwise, say things were successful and change to the results screen
                 else {
-                    Toast.makeText(getApplicationContext(), "Barcode Data Found :)", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getApplicationContext(), "Barcode Data Found :)", Toast.LENGTH_LONG).show();
 
                     Intent showMachineIntent = new Intent(this, ViewMachine.class);
                     //Thanks http://stackoverflow.com/questions/2091465/how-do-i-pass-data-between-activities-on-android
@@ -121,18 +121,19 @@ public class MainActivity extends AppCompatActivity {
                     String machineLoc;
                     //English selected
                     if(chosenLanguage == english){
-                        machineLoc = "Line: \n" + result.get(0) + "\n\nModule: \n" + result.get(1) + "\n\nReel: \n" + result.get(2);
+                        machineLoc = "Line: \n" + result.get(0) + "\n\nModule: \n" + result.get(1) + "\n\nSlot: \n" + result.get(2);
                     }
                     //German Selected
                     else if(chosenLanguage == german){
-                        machineLoc = "Leitung: \n" + result.get(0) + "\n\nModul: \n" + result.get(1) + "\n\nHaspel: \n" + result.get(2);
+                        machineLoc = "Linie: \n" + result.get(0) + "\n\nModul: \n" + result.get(1) + "\n\nSlot: \n" + result.get(2);
                     }
                     //Spanish Selected
                     else {
-                        machineLoc = "Fila: \n" + result.get(0) + "\n\nModulo: \n" + result.get(1) + "\n\nCarrete: \n" + result.get(2);
+                        machineLoc = "Línea: \n" + result.get(0) + "\n\nMódulo: \n" + result.get(1) + "\n\nEspacio: \n" + result.get(2);
                     }
                     showMachineIntent.putExtra("MachineLocation", machineLoc);
                     showMachineIntent.putExtra("LineNo", result.get(0));
+                    showMachineIntent.putExtra("Language", chosenLanguage);
                     startActivity(showMachineIntent);
                 }
             } else if (resultCode == RESULT_CANCELED) {
@@ -147,8 +148,6 @@ public class MainActivity extends AppCompatActivity {
         super.onBackPressed();
         finish();
     }
-
-
 }
 
 //The Generics for AsyncTask are <Type you give this task, Type of objects used for Progress updates, Type of object returned>
@@ -163,6 +162,7 @@ class RetrieveQueryTask extends AsyncTask<String, Void, ArrayList<String>> {
 
 
     private ArrayList<String> queryDatabase(String contents) {
+
         //Begin by assuming you'll be let down
         ArrayList<String> result = null;
 
@@ -211,3 +211,4 @@ class RetrieveQueryTask extends AsyncTask<String, Void, ArrayList<String>> {
     }
 
 }
+
