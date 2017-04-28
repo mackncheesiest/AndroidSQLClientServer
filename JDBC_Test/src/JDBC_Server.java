@@ -123,14 +123,8 @@ class ClientHandler extends Thread {
         // Read a String from the client that will be used to construct our SQL command
         try {
             barcode = (String) input.readObject();
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            this.cleanup();
-            return;
-        }
-        //If the user sent nothing or something didn't read properly (but wasn't caught above), just quit this thread
-        if (barcode == null) {
             this.cleanup();
             return;
         }
@@ -208,6 +202,7 @@ class ClientHandler extends Thread {
 
         } catch (SQLException | IOException e) {
             e.printStackTrace();
+            this.cleanup();
         }
     }
 
