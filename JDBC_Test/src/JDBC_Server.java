@@ -18,7 +18,14 @@ import static java.lang.System.exit;
 
 public class JDBC_Server {
 
+    //Enables various debug info related print statements if true
+    public static final boolean DebugMode = false;
+
+    //Change this to the port you want the Android/Headset App to connect to
+    //Note that it needs to be defined in the headset application project as well
     public static final int SERVER_PORT = 9001;
+    //Change this to the necessary value for your given OracleDB setup
+    private static final String oracleURL = "jdbc:oracle:thin:hr/hr@localhost:1521/XE";
 
     private static ServerSocket sock;
     private static List<ObjectOutputStream> clients = Collections.synchronizedList(new ArrayList<>());
@@ -26,9 +33,6 @@ public class JDBC_Server {
     public static void main(String[] args) throws IOException {
 
         //Initialize the database connection
-        //The basic idea is along the lines of
-        //                    use jdbc thin driver to connect to user hr @ localhost through port 1521, and it's an eXpress Edition of Oracle Database
-        final String oracleURL = "jdbc:oracle:thin:hr/hr@localhost:1521/XE";
         //The account used for development is "josh";"OracleDB"
         //Although, of course, it just depends on your database setup
         String username;
@@ -50,8 +54,11 @@ public class JDBC_Server {
 
             System.out.print("Username: ");
             username = myScanner.next();
+            //TODO: If eventually using this as a true commandline application, migrate this to a System.console.readPassword() function call to hide user input
+            //System.console.readPassword() doesn't work in most IDE command lines, so that's why I'm not using it now
             System.out.print("Password: ");
             password = myScanner.next();
+            //TODO: If readPassword is infeasible on the destination system, at least put some kind of platform-dependent print command here that clears the screen.
 
             //Try to actually connect to the Oracle Database server
             try {
@@ -77,19 +84,19 @@ public class JDBC_Server {
             //Note: Make sure that if the order is "InputStream OutputStream" on the server, they're initialized as "OutputStream InputStream" on the client
             //These are blocking operations that require the other side to be essentially requesting the opposite pair for each one to proceed
             ObjectInputStream is = new ObjectInputStream(s.getInputStream());
-            System.out.println("Got an ObjectInputStream for it!");
             ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
-            System.out.println("Got an ObjectOutputStream for it!");
 
             // Save the output stream to our clients list so we can broadcast to this client later
             // Pretty sure this really isn't needed here (leftover from when this was a chat server), but I'll remove it later
             clients.add(os);
-            System.out.println("Added it to list of clients!");
+            if (DebugMode)
+                System.out.println("Added it to list of clients!");
 
             // Start a new ClientHandler thread for this client.
             ClientHandler c = new ClientHandler(is, os, dbconn);
             c.start();
-            System.out.println("Started ClientHandler!");
+            if (DebugMode)
+                System.out.println("Started ClientHandler!");
         }
     }
 
@@ -130,7 +137,12 @@ class ClientHandler extends Thread {
 
         //Now that we have a valid string, let's build an SQL statement out of it, execute it, and return the results to the client
         try {
-            //TODO: We use PreparedStatements, but OWASP also recommends potentially sanitizing the input still
+            //Replace all non alphanumeric entries with empty strings in the barcode as a form of input sanitation. Should be good enough.
+            if (JDBC_Server.DebugMode)
+                System.out.println("Received barcode: " + barcode);
+            barcode = barcode.replaceAll("[^A-Za-z0-9]", "");
+            if (JDBC_Server.DebugMode)
+                System.out.println("Sanitized barcode: " + barcode);
             //Use PreparedStatements to help prevent SQL Injection
             //https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet
             //This is the query we want to execute
@@ -156,7 +168,8 @@ class ClientHandler extends Thread {
                 }
             }
 
-            System.out.println("I chose ID: " + minOrderNumber + ", REEL_ID: " + ReelID);
+            if (JDBC_Server.DebugMode)
+                System.out.println("I chose ID: " + minOrderNumber + ", REEL_ID: " + ReelID);
 
             //Repeat the process with the second database using what we learned from the first one
             //Now select the line, module, and slot pieces from the second database where the ReelID matches
@@ -206,9 +219,12 @@ class ClientHandler extends Thread {
             this.input.close();
             this.output.close();
             //DON'T close dbconn as it is the server's connection to the database itself.
-            System.out.println("Closed connection!");
+            if (JDBC_Server.DebugMode)
+                System.out.println("Closed connection!");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 }
+
+
