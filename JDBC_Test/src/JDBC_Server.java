@@ -9,10 +9,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import static java.lang.System.exit;
 
@@ -111,6 +108,40 @@ class ClientHandler extends Thread {
     private ObjectOutputStream output;
     private Connection dbconn;
 
+    private static final HashMap<String, Integer> machineNumbers;
+
+    static {
+        machineNumbers = new HashMap<>();
+        machineNumbers.put("NG02NX2BT", 1);
+        machineNumbers.put("NG02NX1BT", 2);
+        machineNumbers.put("NG05NX1BT", 3);
+        machineNumbers.put("NG06NX1BT", 4);
+        machineNumbers.put("NG07NX1BT", 5);
+        machineNumbers.put("NG08NX1BT", 6);
+        machineNumbers.put("NG09NX2BT", 7);
+        machineNumbers.put("NG10NX1BT", 8);
+        machineNumbers.put("NG11NX1BT", 9);
+        machineNumbers.put("NG15NX1BT", 10);
+        machineNumbers.put("NG15NX2BT", 11);
+        machineNumbers.put("NG16NX1BT", 12);
+        machineNumbers.put("NG17NX1BT", 13);
+        machineNumbers.put("NG18NX1BT", 14);
+        machineNumbers.put("NG19NX1BT", 15);
+        machineNumbers.put("NG20NX1BT", 16);
+        machineNumbers.put("NG20NX2BT", 17);
+        machineNumbers.put("NG21NX1BT", 18);
+        machineNumbers.put("NG24NX1BT", 19);
+        machineNumbers.put("NG24NX2BT", 20);
+        machineNumbers.put("NG26NX1BT", 21);
+        machineNumbers.put("NG25NX1BT", 22);
+        machineNumbers.put("NG27NX1BT", 23);
+        machineNumbers.put("NG28NX1BT", 24);
+        machineNumbers.put("NG28NX2BT", 25);
+        machineNumbers.put("NG29NX1BT", 26);
+        machineNumbers.put("NG29NX2BT", 27);
+        machineNumbers.put("NG29NX2BT", 28);
+    }
+
     public ClientHandler(ObjectInputStream input, ObjectOutputStream output, Connection dbconn) {
         this.input = input;
         this.output = output;
@@ -167,7 +198,7 @@ class ClientHandler extends Thread {
 
             //Repeat the process with the second database using what we learned from the first one
             //Now select the line, module, and slot pieces from the second database where the ReelID matches
-            query = "SELECT Buffer, Slot from IMPORTED_CONTINENTAL_PICKS2 WHERE SUD = ? ";
+            query = "SELECT Station, Buffer, Slot from IMPORTED_CONTINENTAL_PICKS2 WHERE SUD = ? ";
             pstmt = dbconn.prepareStatement(query);
             pstmt.setString(1, ReelID);
             rs = pstmt.executeQuery();
@@ -176,21 +207,26 @@ class ClientHandler extends Thread {
             ArrayList<String> headsetResults = new ArrayList<String>();
 
             String Line = "No data found for this barcode in PICKS2 database";
-            String Module = "";
+            String Machine = "";
             String Slot = "";
 
             while (rs.next()) {
                 String buffer = rs.getString("Buffer");
                 //i.e. NG24NX1M09 has Line = 24, Module = 09
                 Line = buffer.substring(2, 4);
-                Module = buffer.substring(buffer.length() - 2);
 
+                //Start building the first piece of M2, 09
+                Slot = "M" + buffer.substring(buffer.length() - 2) + ",";
+
+                //Add the slot piece to the tail end of it, forming the full "Slot: 09" becomes "M2,09"
                 String moduleSlot = rs.getString("Slot");
-                Slot = moduleSlot.substring(moduleSlot.length()-2);
+                Slot = Slot + moduleSlot.substring(moduleSlot.length()-2);
+
+                Machine = machineNumbers.get(rs.getString("Station")).toString();
             }
 
             headsetResults.add(Line);
-            headsetResults.add(Module);
+            headsetResults.add(Machine);
             headsetResults.add(Slot);
 
             //Physically send the results back to the client

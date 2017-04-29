@@ -24,7 +24,7 @@ public class JDBC_Server_Test {
                 ArrayList<String> results = (ArrayList<String>) ois.readObject();
 
                 System.out.println("Line: " + results.get(0));
-                System.out.println("Module: " + results.get(1));
+                System.out.println("Machine: " + results.get(1));
                 System.out.println("Slot: " + results.get(2));
 
             } catch (ClassNotFoundException e) {

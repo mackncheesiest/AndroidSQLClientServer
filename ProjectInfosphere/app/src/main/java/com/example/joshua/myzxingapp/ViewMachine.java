@@ -96,15 +96,15 @@ public class ViewMachine extends AppCompatActivity {
                     String machineLoc;
                     //English selected
                     if(chosenLanguage == english){
-                        machineLoc = "Line: \n" + result.get(0) + "\n\nModule: \n" + result.get(1) + "\n\nSlot: \n" + result.get(2);
+                        machineLoc = "Line: \n" + result.get(0) + "\n\nMachine: \n" + result.get(1) + "\n\nSlot: \n" + result.get(2);
                     }
                     //German Selected
                     else if(chosenLanguage == german){
-                        machineLoc = "Linie: \n" + result.get(0) + "\n\nModul: \n" + result.get(1) + "\n\nSlot: \n" + result.get(2);
+                        machineLoc = "Linie: \n" + result.get(0) + "\n\nMaschine: " + result.get(1) + "\n\nSlot: \n" + result.get(2);
                     }
                     //Spanish Selected
                     else {
-                        machineLoc = "Línea: \n" + result.get(0) + "\n\nMódulo: \n" + result.get(1) + "\n\nEspacio: \n" + result.get(2);
+                        machineLoc = "Línea: \n" + result.get(0) + "\n\nMáquina: \n" + result.get(1) + "\n\nEspacio: \n" + result.get(2);
                     }
                     String lineNo = result.get(0);
                     updateScreenContent(machineLoc, lineNo);
